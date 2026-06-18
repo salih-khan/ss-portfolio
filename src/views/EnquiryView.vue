@@ -1,7 +1,7 @@
 <template>
   <div class="contact-page">
     <div class="contact-header">
-      <h1 class="contact-title">INQUIRY // PROJECT BRIEF</h1>
+      <h1 class="contact-title">ENQUIRY // PROJECT BRIEF</h1>
       <p>
         Thank you for considering Surma Studio. <br /><br />
         At Surma Studio, we view every commission not merely as a booking, but as a considered
@@ -16,21 +16,6 @@
     <div class="two-column-layout">
       <!-- LEFT COLUMN - Contact & Social Info -->
       <div class="contact-info-panel">
-        <!-- <div class="info-block">
-          <h3 class="info-label">Phone</h3>
-          <p class="info-value">+8801234567890</p>
-        </div>
-
-        <div class="info-block">
-          <h3 class="info-label">Email</h3>
-          <p class="info-value">contact@example.com</p>
-        </div>
-
-        <div class="info-block">
-          <h3 class="info-label">Address</h3>
-          <p class="info-value">Burnley, Lancashire, UK</p>
-        </div> -->
-
         <div class="info-block">
           <h3 class="info-label">You can also find us on Instagram</h3>
           <div class="social-menu">
@@ -45,7 +30,7 @@
         </div>
       </div>
 
-      <!-- RIGHT COLUMN - Minimal Seamless Form (no boxes/cards) -->
+      <!-- RIGHT COLUMN - Minimal Seamless Form -->
       <form @submit.prevent="handleSubmit" class="seamless-form">
         <!-- Section 1: Client Info -->
         <div class="form-section">
@@ -70,14 +55,14 @@
         <div class="form-section">
           <div class="section-title">02 / LOGISTICS</div>
           <div class="form-row">
-            <div class="form-group">
+            <div class="form-group date-group">
               <input
-                type="text"
-                ref="datePickerInput"
+                type="date"
                 v-model="formData.eventDate"
-                placeholder="Event Date"
+                :min="minDate"
+                @focus="showDatePlaceholder = false"
+                @blur="checkDateValue"
                 required
-                id="datePickerInput"
               />
             </div>
             <div class="form-group">
@@ -109,15 +94,7 @@
               />
             </div>
           </div>
-          <p
-            style="
-              font-size: 0.75rem;
-              color: #ff8886;
-              margin-top: -0.5rem;
-              letter-spacing: 0.3px;
-              font-weight: 500;
-            "
-          >
+          <p class="note-text">
             If these times do not align with your schedule, please specify your exact timeline in
             the additional briefing box at the bottom of the form. *
           </p>
@@ -129,7 +106,7 @@
           <div class="form-row">
             <div class="form-group">
               <select v-model="formData.guestCount" required>
-                <option value="" disabled selected>Estimated Guest Count (click to select)</option>
+                <option value="" disabled selected>Estimated Guest Count</option>
                 <option>Under 50</option>
                 <option>50 - 150</option>
                 <option>150 - 300</option>
@@ -138,7 +115,7 @@
             </div>
             <div class="form-group">
               <select v-model="formData.eventType" required>
-                <option value="" disabled selected>Event Type (click to select)</option>
+                <option value="" disabled selected>Event Type</option>
                 <option>Nikkah</option>
                 <option>Multi-day Wedding</option>
                 <option>Commercial Product</option>
@@ -188,15 +165,26 @@
           </div>
         </div>
 
-        <!-- terms & submit -->
-        <div class="form-section submit-section">
+        <!-- Section 5: Agreement -->
+        <div class="form-section">
+          <div class="section-title">05 / AGREEMENT</div>
+          <div class="agreement-text">
+            <p>
+              To submit your enquiry, please review and accept our conditions by ticking the agreement option below.
+              You may select the highlighted link at any time to read our full terms of condition and privacy policy. By submitting this form, you acknowledge that your personal data will be processed in accordance with our privacy policy.
+            </p>
+          </div>
           <label class="checkbox-label">
             <input type="checkbox" v-model="formData.agreeTerms" required />
             <span class="checkmark"></span>
-            <span class="checkbox-text">I agree to the terms & privacy policy *</span>
+            <span class="checkbox-text">I agree to the <a href="/privacy-policy" target="_blank" class="terms-link">Terms &amp; Privacy Policy</a> *</span>
           </label>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-section submit-section">
           <button type="submit" class="submit-btn" :disabled="isSubmitting">
-            {{ isSubmitting ? 'SENDING...' : 'SEND INQUIRY' }}
+            {{ isSubmitting ? 'SENDING...' : 'SEND ENQUIRY' }}
           </button>
         </div>
       </form>
@@ -220,10 +208,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue'
-import flatpickr from 'flatpickr'
-import 'flatpickr/dist/flatpickr.min.css'
-
+import { ref, reactive, watch, onMounted, onUnmounted } from 'vue'
 import { useEmailSender } from '@/composables/useEmailSender'
 
 // Form data using reactive
@@ -247,24 +232,24 @@ const formData = reactive({
 
 const isSubmitting = ref(false)
 const showSuccess = ref(false)
-const datePickerInput = ref(null)
-let flatpickrInstance = null
+const showDatePlaceholder = ref(true)
+const isMobile = ref(false)
 
-// Initialize flatpickr
-onMounted(() => {
-  if (datePickerInput.value) {
-    flatpickrInstance = flatpickr(datePickerInput.value, {
-      dateFormat: 'd-m-Y',
-      minDate: 'today',
-      altInput: true,
-      altFormat: 'F j, Y',
-      allowInput: false,
-      onChange: (selectedDates, dateStr) => {
-        formData.eventDate = dateStr
-      },
-    })
+// Check if device is mobile or tablet (<= 1024px)
+const checkDevice = () => {
+  isMobile.value = window.innerWidth <= 1024
+}
+
+// Set min date to today for date picker
+const today = new Date()
+const minDate = today.toISOString().split('T')[0]
+
+// Check date value to show/hide placeholder
+const checkDateValue = () => {
+  if (!formData.eventDate) {
+    showDatePlaceholder.value = true
   }
-})
+}
 
 // Watch for event type to reset other text when not Other
 watch(
@@ -275,6 +260,16 @@ watch(
     }
   },
 )
+
+// Watch for window resize
+onMounted(() => {
+  checkDevice()
+  window.addEventListener('resize', checkDevice)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkDevice)
+})
 
 // Validation function
 const validateForm = () => {
@@ -377,20 +372,12 @@ const resetForm = () => {
   formData.secondaryCoverage = ''
   formData.briefingInfo = ''
   formData.agreeTerms = false
-
-  // Clear flatpickr
-  if (flatpickrInstance) {
-    flatpickrInstance.clear()
-  }
+  showDatePlaceholder.value = true
 }
 
 // Handle form submission
-// Initialize EmailJS composable
-const { sendInquiryEmail } = useEmailSender()
+const { sendEnquiryEmail } = useEmailSender()
 
-// ... (keep all your flatpickr init, validation, collectFormData, resetForm exactly as they are)
-
-// Modified handleSubmit using the composable
 const handleSubmit = async () => {
   if (!validateForm()) return
 
@@ -399,7 +386,7 @@ const handleSubmit = async () => {
   const formDataToSubmit = collectFormData()
 
   // Send email using composable
-  const result = await sendInquiryEmail(formDataToSubmit)
+  const result = await sendEnquiryEmail(formDataToSubmit)
 
   if (result.success) {
     resetForm()
@@ -409,10 +396,14 @@ const handleSubmit = async () => {
       showSuccess.value = false
     }, 4000)
   } else {
-    alert('Sorry, there was a problem sending your inquiry. Please try again later.')
+    alert('Sorry, there was a problem sending your enquiry. Please try again later.')
   }
 
   isSubmitting.value = false
+}
+
+const closeSuccess = () => {
+  showSuccess.value = false
 }
 </script>
 
@@ -466,7 +457,7 @@ const handleSubmit = async () => {
   gap: 4rem;
 }
 
-/* LEFT COLUMN - Contact & Social Info (minimal) */
+/* LEFT COLUMN */
 .contact-info-panel {
   padding-right: 1rem;
 }
@@ -482,13 +473,6 @@ const handleSubmit = async () => {
   text-transform: uppercase;
   color: #999;
   margin-bottom: 0.5rem;
-}
-
-.info-value {
-  font-size: 1rem;
-  color: #333;
-  line-height: 1.4;
-  font-weight: 500;
 }
 
 .social-menu {
@@ -509,15 +493,11 @@ const handleSubmit = async () => {
   color: #000;
 }
 
-/* RIGHT COLUMN - Seamless Form (NO BOXES, NO CARDS) */
+/* RIGHT COLUMN - Seamless Form */
 .seamless-form {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-}
-
-.form-section {
-  border-bottom: none;
 }
 
 .section-title {
@@ -540,12 +520,10 @@ const handleSubmit = async () => {
 
 .form-group {
   width: 100%;
-
   margin-bottom: 1rem;
+  position: relative;
 }
-.form-group-main {
-  color: green;
-}
+
 .form-group input,
 .form-group select,
 .form-group textarea {
@@ -559,6 +537,7 @@ const handleSubmit = async () => {
   background: transparent;
   transition: border-color 0.2s ease;
   outline: none;
+  color: #111;
 }
 
 .form-group input:focus,
@@ -572,40 +551,84 @@ const handleSubmit = async () => {
   min-height: 80px;
 }
 
-/* Remove margin-bottom for last element in section */
-.form-section:last-child .form-group:last-child {
-  margin-bottom: 0;
-}
-
-/* Apply to both date input and select */
-.form-group input,
-.form-group select {
+/* Date picker styling - consistent black text */
+.date-group input[type="date"] {
+  color-scheme: light;
   width: 100%;
-  padding: 0.75rem 0;
-  border: none;
-  border-bottom: 1px solid #eaeaea; /* Only bottom border */
-  font-size: 0.9rem;
-  font-family: inherit;
-  font-weight: 500;
+  position: relative;
   background: transparent;
-  outline: none;
-  transition: border-color 0.2s ease;
+  color: #111;
 }
 
-/* Clean up the select dropdown arrow */
+/* Desktop styles ( > 1024px ) - no placeholder text */
+@media (min-width: 1025px) {
+  .date-group input[type="date"]::before {
+    display: none;
+  }
+
+  .date-group input[type="date"] {
+    color: #111;
+  }
+
+  .date-placeholder {
+    display: none;
+  }
+}
+
+/* Mobile and Tablet styles ( <= 1024px ) - custom placeholder */
+@media (max-width: 1024px) {
+  .date-group {
+    position: relative;
+  }
+
+  .date-placeholder {
+    position: absolute;
+    left: 0;
+    top: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #999;
+    pointer-events: none;
+    font-family: 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  /* Hide the native placeholder on mobile */
+  .date-group input[type="date"]::before {
+    display: none;
+  }
+
+  .date-group input[type="date"]:focus + .date-placeholder,
+  .date-group input[type="date"]:valid + .date-placeholder {
+    display: none;
+  }
+
+  .date-group input[type="date"]:valid {
+    color: #111;
+  }
+}
+
+/* Select dropdown styling */
 select {
   cursor: pointer;
   appearance: none;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.5"><polyline points="6 9 12 15 18 9"></polyline></svg>');
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
+  color: #111;
 }
 
-/* Remove the default box shadow or border from flatpickr input */
-.flatpickr-input {
-  box-shadow: none !important;
-  border-bottom: 1px solid #eaeaea !important;
+select option {
+  color: #111;
 }
+
+.note-text {
+  font-size: 0.75rem;
+  color: #ff8886;
+  margin-top: -0.5rem;
+  letter-spacing: 0.3px;
+  font-weight: 500;
+}
+
 /* Custom Checkbox */
 .checkbox-label {
   display: flex;
@@ -685,7 +708,7 @@ select {
   margin-top: 0.5rem;
 }
 
-/* modal */
+/* Modal */
 .success-modal {
   position: fixed;
   top: 0;
@@ -742,7 +765,37 @@ select {
   border-color: #000;
 }
 
-/* responsive */
+
+/* Add these styles to your existing CSS */
+.agreement-text {
+  margin-bottom: 1.5rem;
+}
+
+.agreement-text p {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #555;
+}
+
+.agreement-link {
+  color: #555;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+
+.agreement-link:hover {
+  color: #000;
+}
+
+.checkbox-text {
+  font-size: 0.75rem;
+  color: #666;
+  letter-spacing: 0.3px;
+  font-weight: 500;
+}
+
+/* Responsive */
 @media (max-width: 800px) {
   .two-column-layout {
     grid-template-columns: 1fr;
@@ -805,13 +858,5 @@ select {
     transform: translateY(0);
     opacity: 1;
   }
-}
-
-select {
-  cursor: pointer;
-  appearance: none;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>');
-  background-repeat: no-repeat;
-  background-position: right 0.5rem center;
 }
 </style>

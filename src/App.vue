@@ -6,7 +6,7 @@
         <router-link to="/" class="nav-link">HOME</router-link>
         <router-link to="/archive" class="nav-link">ARCHIVE</router-link>
         <router-link to="/echo" class="nav-link">THE ECHO</router-link>
-        <router-link to="/inquiry" class="nav-link">INQUIRY</router-link>
+        <router-link to="/enquiry" class="nav-link">ENQUIRY</router-link>
       </nav>
     </header>
 

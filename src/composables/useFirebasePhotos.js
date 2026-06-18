@@ -84,14 +84,14 @@ export function useFirebasePhotos() {
     error.value = null
 
     try {
-      const highlightsExist = await folderExists('Highlights')
-      let folderToUse = 'Weddings'
+      const homeExist = await folderExists('Home')
+      let folderToUse = 'Home'
 
-      if (highlightsExist) {
-        console.log('Using Highlights folder')
-        folderToUse = 'Highlights'
+      if (homeExist) {
+        console.log('Using Home folder')
+        folderToUse = 'Home'
       } else {
-        console.log('Highlights folder not found, using Weddings folder')
+        console.log('Home folder not found, using Weddings folder')
       }
 
       const { images } = await getPhotosFromFolder(folderToUse, limit, 0)

@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import HomeView from './views/HomeView.vue'
-import InquiryView from './views/InquiryView.vue'
+import EnquiryView from './views/EnquiryView.vue'
 import ArchiveView from './views/ArchiveView.vue'
 import EchoView from './views/EchoView.vue'
 
@@ -18,9 +18,9 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/inquiry',
-      name: 'inquiry',
-      component: InquiryView,
+      path: '/enquiry',
+      name: 'enquiry',
+      component: EnquiryView,
     },
 
     {
@@ -43,6 +43,11 @@ const router = createRouter({
       name: 'Collection',
       component: () => import('./views/CollectionView.vue'),
     },
+    {
+  path: '/privacy-policy',
+  name: 'PrivacyPolicy',
+  component: () => import('@/views/PrivacyPolicyView.vue')
+}
   ],
 })
 

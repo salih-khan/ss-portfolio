@@ -6,7 +6,7 @@ const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID
 const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
 
 export function useEmailSender() {
-  const sendInquiryEmail = async (formData) => {
+  const sendEnquiryEmail = async (formData) => {
     // Validate env vars are set
     if (!PUBLIC_KEY || !SERVICE_ID || !TEMPLATE_ID) {
       console.error('EmailJS credentials missing in environment variables')
@@ -43,5 +43,5 @@ export function useEmailSender() {
     }
   }
 
-  return { sendInquiryEmail }
+  return { sendEnquiryEmail }
 }

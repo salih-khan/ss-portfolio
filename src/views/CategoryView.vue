@@ -1,16 +1,14 @@
 <template>
   <div class="category-page">
-    <!-- Minimalist Archive Header -->
     <div class="archive-header">
       <h1 class="archive-title">Archive // Elements</h1>
-      <p class="archive-description">This ledger tracks the evolving visual timeline of Surma Studio. It is cataloged strictly into three sectors — weddings, editorial and product — allowing the work to be viewed as a continuous, uninterrupted exploration of the visual flow.</p>
+      <p class="archive-description">This ledger tracks the evolving visual timeline of Surma Studio. It is cataloged strictly into three sectors — wedding, editorial and product — allowing the work to be viewed as a continuous, uninterrupted exploration of the visual flow.</p>
     </div>
 
-    <!-- Minimalist Breadcrumb -->
     <div class="breadcrumb">
       <router-link to="/archive">Archive</router-link>
       <span>/</span>
-      <span class="current">{{ categoryDisplayName }}</span>
+      <span class="current">{{ category?.displayName || '' }}</span>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -25,8 +23,8 @@
     <div v-else class="collections-grid">
       <router-link
         v-for="collection in collections"
-        :key="collection.name"
-        :to="{ name: 'Collection', params: { path: encodeURIComponent(collection.path) } }"
+        :key="collection.id"
+        :to="{ name: 'Collection', params: { collectionId: collection.id } }"
         class="collection-link"
       >
         {{ collection.displayName }}
@@ -42,27 +40,16 @@ import { useRoute } from 'vue-router'
 import { useArchiveNavigation } from '@/composables/useArchiveNavigation'
 
 const route = useRoute()
-const { getCollections, loading } = useArchiveNavigation()
+const { getCollections, getCategory, loading } = useArchiveNavigation()
 
-const categoryName = ref('')
-const categoryDisplayName = ref('')
+const categoryId = ref('')
+const category = ref(null)
 const collections = ref([])
 
-const formatCategoryDisplayName = (name) => {
-  const orderMap = {
-    Wedding: 'Weddings',
-    Editorial: 'Editorial',
-    Product: 'Product',
-  }
-  return orderMap[name] || name
-}
-
 onMounted(async () => {
-  categoryName.value = route.params.category
-  categoryDisplayName.value = formatCategoryDisplayName(categoryName.value)
-
-  const categoryPath = `Archive/${categoryName.value}`
-  collections.value = await getCollections(categoryPath)
+  categoryId.value = route.params.categoryId
+  category.value = await getCategory(categoryId.value)
+  collections.value = await getCollections(categoryId.value)
 })
 </script>
 
@@ -182,12 +169,8 @@ onMounted(async () => {
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .empty-state {
@@ -201,20 +184,16 @@ onMounted(async () => {
   .category-page {
     padding: 1rem;
   }
-
   .archive-title {
     font-size: 1.5rem;
   }
-
   .archive-description {
     font-size: 0.85rem;
   }
-
   .breadcrumb {
     font-size: 0.7rem;
     margin-bottom: 3rem;
   }
-
   .collection-link {
     font-size: 0.9rem;
     letter-spacing: 1.5px;

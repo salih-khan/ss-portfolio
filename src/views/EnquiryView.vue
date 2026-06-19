@@ -34,7 +34,7 @@
       <form @submit.prevent="handleSubmit" class="seamless-form">
         <!-- Section 1: Client Info -->
         <div class="form-section">
-          <div class="section-title">01 / CLIENT INFO</div>
+          <div class="section-title">01 // CLIENT INFO</div>
           <div class="form-row">
             <div class="form-group">
               <input type="text" v-model="formData.firstName" placeholder="First Name" required />
@@ -53,7 +53,7 @@
 
         <!-- Section 2: Logistics -->
         <div class="form-section">
-          <div class="section-title">02 / LOGISTICS</div>
+          <div class="section-title">02 // LOGISTICS</div>
           <div class="form-row">
             <div class="form-group date-group">
               <input
@@ -102,7 +102,7 @@
 
         <!-- Section 3: Commission Details -->
         <div class="form-section">
-          <div class="section-title">03 / COMMISSION DETAILS</div>
+          <div class="section-title">03 // COMMISSION DETAILS</div>
           <div class="form-row">
             <div class="form-group">
               <select v-model="formData.guestCount" required>
@@ -140,7 +140,7 @@
             <input
               type="text"
               v-model="formData.primaryCoverage"
-              placeholder="Primary house coverage / additional charge (location required)"
+              placeholder="Primary house coverage / Additional charge (Location Required)"
             />
           </div>
           <!-- Secondary house coverage -->
@@ -148,26 +148,26 @@
             <input
               type="text"
               v-model="formData.secondaryCoverage"
-              placeholder="Secondary house coverage / additional charge (location required)"
+              placeholder="Secondary house coverage / Additional charge (Location Required)"
             />
           </div>
         </div>
 
         <!-- Section 4: Atmosphere & additional briefing -->
         <div class="form-section">
-          <div class="section-title">04 / ATMOSPHERE & ADDITIONAL BRIEFING</div>
+          <div class="section-title">04 // ATMOSPHERE & ADDITIONAL BRIEFING</div>
           <div class="form-group">
             <textarea
               v-model="formData.briefingInfo"
               rows="4"
-              placeholder="Additional briefing information (vision, mood, flow, special moments)..."
+              placeholder="Additional briefing information (vision, mood, flow, special moments...)"
             ></textarea>
           </div>
         </div>
 
         <!-- Section 5: Agreement -->
         <div class="form-section">
-          <div class="section-title">05 / AGREEMENT</div>
+          <div class="section-title">05 // AGREEMENT</div>
           <div class="agreement-text">
             <p>
               To submit your enquiry, please review and accept our conditions by ticking the agreement option below.

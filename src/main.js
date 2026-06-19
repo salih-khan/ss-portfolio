@@ -22,16 +22,10 @@ const router = createRouter({
       name: 'enquiry',
       component: EnquiryView,
     },
-
     {
       path: '/archive',
       name: 'archive',
       component: ArchiveView,
-    },
-    {
-      path: '/archive/:category',
-      name: 'Category',
-      component: () => import('@/views/CategoryView.vue'),
     },
     {
       path: '/echo',
@@ -39,15 +33,20 @@ const router = createRouter({
       component: EchoView,
     },
     {
-      path: '/collection/:path',
-      name: 'Collection',
-      component: () => import('./views/CollectionView.vue'),
+      path: '/archive/:categoryId',
+      name: 'Category',
+      component: () => import('@/views/CategoryView.vue')
     },
     {
-  path: '/privacy-policy',
-  name: 'PrivacyPolicy',
-  component: () => import('@/views/PrivacyPolicyView.vue')
-}
+      path: '/archive/collection/:collectionId',
+      name: 'Collection',
+      component: () => import('@/views/CollectionView.vue')
+    },
+    {
+      path: '/privacy-policy',
+      name: 'PrivacyPolicy',
+      component: () => import('@/views/PrivacyPolicyView.vue')
+    }
   ],
 })
 

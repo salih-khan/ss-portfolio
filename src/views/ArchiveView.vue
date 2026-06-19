@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="archive-header">
       <h1 class="archive-title">Archive // Elements</h1>
-      <p class="archive-description">This ledger tracks the evolving visual timeline of Surma Studio. It is cataloged strictly into three sectors — weddings, editorial and product — allowing the work to be viewed as a continuous, uninterrupted exploration of the visual flow.</p>
+      <p class="archive-description">This ledger tracks the evolving visual timeline of Surma Studio. It is cataloged strictly into three sectors — wedding, editorial and product — allowing the work to be viewed as a continuous, uninterrupted exploration of the visual flow.</p>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -19,12 +19,12 @@
       <div class="categories-wrapper">
         <router-link
           v-for="category in categories"
-          :key="category.name"
-          :to="{ name: 'Category', params: { category: category.name } }"
+          :key="category.id"
+          :to="{ name: 'Category', params: { categoryId: category.id } }"
           class="category-link"
         >
-          <span class="category-number">{{ category.number }}</span>
-          <span class="category-name">{{ category.cleanName }}</span>
+          <span class="category-number">{{ category.order.toString().padStart(2, '0') }}</span>
+          <span class="category-name">{{ category.displayName }}</span>
         </router-link>
       </div>
     </div>
@@ -40,8 +40,7 @@ const categories = ref([])
 
 onMounted(async () => {
   categories.value = await getCategories()
-  // Debug: check the numbers
-  console.log(categories.value.map(c => ({ number: c.number, cleanName: c.cleanName })))
+  console.log('📊 Categories loaded:', categories.value)
 })
 </script>
 
@@ -158,12 +157,8 @@ onMounted(async () => {
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .error-container {
@@ -172,17 +167,14 @@ onMounted(async () => {
   color: #ff4444;
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
   .category-link {
     font-size: 4rem;
     gap: 1.5rem;
   }
-
   .category-name {
     font-size: 4rem;
   }
-
   .category-number {
     font-size: 1.2rem;
     min-width: 50px;
@@ -193,31 +185,25 @@ onMounted(async () => {
   .archive-page {
     padding: 1rem;
   }
-
   .archive-title {
     font-size: 1.5rem;
   }
-
   .archive-description {
     font-size: 0.8rem;
     max-width: 100%;
   }
-
   .categories-wrapper {
     min-width: 200px;
     width: 100%;
   }
-
   .category-link {
     font-size: 2.5rem;
     gap: 1rem;
     padding: 0.2rem 1rem;
   }
-
   .category-name {
     font-size: 2.5rem;
   }
-
   .category-number {
     font-size: 0.9rem;
     min-width: 36px;
@@ -230,16 +216,13 @@ onMounted(async () => {
     font-size: 1.8rem;
     gap: 0.75rem;
   }
-
   .category-name {
     font-size: 1.8rem;
   }
-
   .category-number {
     font-size: 0.75rem;
     min-width: 30px;
   }
-
   .categories-wrapper {
     min-width: 160px;
   }

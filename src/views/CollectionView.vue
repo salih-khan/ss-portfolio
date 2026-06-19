@@ -1,22 +1,20 @@
 <template>
   <div class="collection-page">
-    <!-- Minimalist Archive Header -->
     <div class="archive-header">
       <h1 class="archive-title">Archive // Elements</h1>
-      <p class="archive-description">This ledger tracks the evolving visual timeline of Surma Studio. It is cataloged strictly into three sectors — weddings, editorial and product — allowing the work to be viewed as a continuous, uninterrupted exploration of the visual flow.</p>
+      <p class="archive-description">This ledger tracks the evolving visual timeline of Surma Studio. It is cataloged strictly into three sectors — wedding, editorial and product — allowing the work to be viewed as a continuous, uninterrupted exploration of the visual flow.</p>
     </div>
 
-    <!-- Minimalist Breadcrumb -->
     <div class="breadcrumb">
       <router-link to="/archive">Archive</router-link>
       <span>/</span>
-      <router-link :to="`/archive/${categoryName}`">{{ formatCategoryForBreadcrumb(categoryName) }}</router-link>
+      <router-link :to="`/archive/${categoryId}`">{{ category?.displayName || '' }}</router-link>
       <span>/</span>
-      <span class="current">{{ collectionDisplayName }}</span>
+      <span class="current">{{ collection?.displayName || '' }}</span>
     </div>
 
     <div class="collection-header">
-      <h2 class="collection-title">{{ collectionDisplayName }}</h2>
+      <h2 class="collection-title">{{ collection?.displayName || '' }}</h2>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -48,37 +46,22 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import MasonryGrid from '@/components/MasonryGrid.vue'
 import { useFirebasePhotos } from '@/composables/useFirebasePhotos'
+import { useArchiveNavigation } from '@/composables/useArchiveNavigation'
 
 const route = useRoute()
 const { getPhotosFromFolder } = useFirebasePhotos()
+const { getCollection, getCategory } = useArchiveNavigation()
 
+const collectionId = ref('')
+const categoryId = ref('')
+const category = ref(null)
+const collection = ref(null)
 const collectionPath = ref('')
-const categoryName = ref('')
-const collectionDisplayName = ref('')
 const photos = ref([])
 const hasMore = ref(false)
 const nextOffset = ref(0)
 const loading = ref(false)
 const loadingMore = ref(false)
-
-const formatFromPath = (path) => {
-  const parts = path.split('/')
-  const collectionPart = parts[parts.length - 1]
-  return collectionPart
-    .replace(/[-_]/g, ' ')
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ')
-}
-
-const formatCategoryForBreadcrumb = (name) => {
-  const displayMap = {
-    Wedding: 'Weddings',
-    Editorial: 'Editorial',
-    Product: 'Product',
-  }
-  return displayMap[name] || name
-}
 
 const loadPhotos = async (offset = 0) => {
   const result = await getPhotosFromFolder(collectionPath.value, 20, offset)
@@ -103,14 +86,22 @@ const loadMore = async () => {
 onMounted(async () => {
   loading.value = true
 
-  const encodedPath = route.params.path
-  collectionPath.value = decodeURIComponent(encodedPath)
+  collectionId.value = route.params.collectionId
 
-  const pathParts = collectionPath.value.split('/')
-  categoryName.value = pathParts[pathParts.length - 2] || ''
-  collectionDisplayName.value = formatFromPath(collectionPath.value)
+  // Fetch collection data from Firestore
+  collection.value = await getCollection(collectionId.value)
 
-  await loadPhotos()
+  if (collection.value) {
+    // Get parent category for breadcrumb
+    if (collection.value.parentId) {
+      categoryId.value = collection.value.parentId
+      category.value = await getCategory(categoryId.value)
+    }
+
+    collectionPath.value = collection.value.path
+    await loadPhotos()
+  }
+
   loading.value = false
 })
 </script>
@@ -215,12 +206,8 @@ onMounted(async () => {
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .load-more-container {
@@ -279,24 +266,19 @@ onMounted(async () => {
   .collection-page {
     padding: 1rem;
   }
-
   .archive-title {
     font-size: 1.5rem;
   }
-
   .archive-description {
     font-size: 0.85rem;
   }
-
   .collection-title {
     font-size: 1.3rem;
   }
-
   .breadcrumb {
     font-size: 0.7rem;
     margin-bottom: 2rem;
   }
-
   .load-more-btn {
     padding: 0.6rem 1.5rem;
     font-size: 0.7rem;

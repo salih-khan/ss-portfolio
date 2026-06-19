@@ -2,8 +2,8 @@
   <div class="privacy-page">
     <!-- Header -->
     <div class="privacy-header">
-      <h1 class="privacy-title">Privacy // Policy</h1>
-      <p class="privacy-subtitle">Terms of service &amp; data management</p>
+      <h1 class="privacy-title">Terms of service // Enquiry submission</h1>
+      <p class="privacy-subtitle">Terms of service, data management &amp; privacy.</p>
     </div>
 
     <!-- Content -->
@@ -14,25 +14,25 @@
 
         <div class="policy-card">
           <div class="policy-item">
-            <span class="policy-number">01</span>
+            <span class="policy-number"></span>
             <div class="policy-body">
-              <h3 class="policy-heading">Purpose of Enquiry</h3>
-              <p class="policy-text">Submission of this form constitutes a formal request for availability and commission budgeting. It does not secure a booking, guarantee studio availability, or create a binding contractual agreement to shoot.</p>
+              <h3 class="policy-heading">01 // Purpose of Enquiry</h3>
+              <p class="policy-text">Submission of this form constitutes a formal request for availability and commission budgeting. It does not secure a booking, guarantee studio availability or create a binding contractual agreement to shoot.</p>
             </div>
           </div>
 
           <div class="policy-item">
-            <span class="policy-number">02</span>
+            <span class="policy-number"></span>
             <div class="policy-body">
-              <h3 class="policy-heading">Communications &amp; Delivery</h3>
-              <p class="policy-text">By submitting your details, you authorise Surma Studio to contact you via the provided channels regarding your specific project enquiry. All project briefs, initial consultations, and custom rate sheets remain the intellectual property of Surma Studio and are intended solely for the recipient.</p>
+              <h3 class="policy-heading">02 // Communications &amp; Delivery</h3>
+              <p class="policy-text">By submitting your details, you authorise Surma Studio to contact you via the provided channels regarding your specific project enquiry. All project briefs, initial consultations and custom rate sheets remain the intellectual property of Surma Studio and are intended solely for the recipient.</p>
             </div>
           </div>
 
           <div class="policy-item">
-            <span class="policy-number">03</span>
+            <span class="policy-number"></span>
             <div class="policy-body">
-              <h3 class="policy-heading">Retainers &amp; Bookings</h3>
+              <h3 class="policy-heading">03 // Retainers &amp; Bookings</h3>
               <p class="policy-text">A commission is only officially secured once a bespoke services contract is signed by both parties and a non-refundable retainer fee has been processed. Dates are held exclusively on a first-committed basis.</p>
             </div>
           </div>
@@ -45,25 +45,25 @@
 
         <div class="policy-card">
           <div class="policy-item">
-            <span class="policy-number">01</span>
+            <span class="policy-number"></span>
             <div class="policy-body">
-              <h3 class="policy-heading">Data Collection</h3>
-              <p class="policy-text">We collect only the information necessary to evaluate your creative brief: your name, contact information, event logistics, and creative intent. We do not use tracking cookies for marketing or distribute your data to third-party networks.</p>
+              <h3 class="policy-heading">01 // Data Collection</h3>
+              <p class="policy-text">We collect only the information necessary to evaluate your creative brief: your name, contact information, event logistics and creative intent. We do not use tracking cookies for marketing or distribute your data to third-party networks.</p>
             </div>
           </div>
 
           <div class="policy-item">
-            <span class="policy-number">02</span>
+            <span class="policy-number"></span>
             <div class="policy-body">
-              <h3 class="policy-heading">Use &amp; Security</h3>
-              <p class="policy-text">Your personal details are treated with strict confidentiality. They are used exclusively by Surma Studio to communicate regarding your enquiry, log your project into our internal studio calendar, and structure your booking contract.</p>
+              <h3 class="policy-heading">02 // Use &amp; Security</h3>
+              <p class="policy-text">Your personal details are treated with strict confidentiality. They are used exclusively by Surma Studio to communicate regarding your enquiry, log your project into our internal studio calendar and structure your booking contract.</p>
             </div>
           </div>
 
           <div class="policy-item">
-            <span class="policy-number">03</span>
+            <span class="policy-number"></span>
             <div class="policy-body">
-              <h3 class="policy-heading">Retention &amp; Rights</h3>
+              <h3 class="policy-heading">03 // Retention &amp; Rights</h3>
               <p class="policy-text">Unsecured enquiry data is periodically cleared from our temporary servers to maintain system hygiene. You retain the right at any time to request the absolute removal or correction of your personal data from our registry by contacting the studio directly.</p>
             </div>
           </div>
@@ -134,13 +134,13 @@
 }
 
 .section-title {
-  font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: 3px;
-  color: #333;
-  margin-bottom: 2rem;
+  font-size: 1.2rem;
   text-transform: uppercase;
-  padding-bottom: 0.5rem;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 3rem;
+  padding-bottom: 0.25rem;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -151,7 +151,6 @@
 }
 
 .policy-item {
-  display: grid;
   grid-template-columns: 40px 1fr;
   gap: 1.5rem;
   align-items: flex-start;
@@ -173,13 +172,16 @@
 
 .policy-heading {
   font-size: 1rem;
-  font-weight: 500;
-  color: #222;
-  letter-spacing: 0.5px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .policy-text {
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1.6;
   color: #555;
   font-weight: 400;

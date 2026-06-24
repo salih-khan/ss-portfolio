@@ -64,6 +64,12 @@
                 @blur="checkDateValue"
                 required
               />
+              <span v-if="showDatePlaceholder && !formData.eventDate" class="date-placeholder">
+                Event Date
+              </span>
+              <span v-if="formData.eventDate" class="date-display">
+                {{ formattedEventDate }}
+              </span>
             </div>
             <div class="form-group">
               <select v-model="formData.startTime" required>
@@ -208,7 +214,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, watch, computed, onMounted, onUnmounted } from 'vue'
 import { useEmailSender } from '@/composables/useEmailSender'
 
 // Form data using reactive
@@ -250,6 +256,14 @@ const checkDateValue = () => {
     showDatePlaceholder.value = true
   }
 }
+
+// Human-readable display for the chosen date (dd/mm/yyyy),
+// rendered by us so we never depend on the browser's own date text
+const formattedEventDate = computed(() => {
+  if (!formData.eventDate) return ''
+  const [year, month, day] = formData.eventDate.split('-')
+  return `${day}/${month}/${year}`
+})
 
 // Watch for event type to reset other text when not Other
 watch(
@@ -524,6 +538,7 @@ const closeSuccess = () => {
   position: relative;
 }
 
+/* Keep all form inputs with black text when filled */
 .form-group input,
 .form-group select,
 .form-group textarea {
@@ -540,74 +555,23 @@ const closeSuccess = () => {
   color: #111;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  border-bottom-color: #000;
+/* Select's own closed-box text follows its placeholder/valid state,
+   since <select> has no ::placeholder pseudo-element to rely on */
+.form-group select {
+  font-weight: 400;
 }
 
-.form-group textarea {
-  resize: vertical;
-  min-height: 80px;
+.form-group select:valid {
+  font-weight: 500;
 }
 
-/* Date picker styling - consistent black text */
-.date-group input[type="date"] {
-  color-scheme: light;
-  width: 100%;
-  position: relative;
-  background: transparent;
-  color: #111;
+/* Make placeholder text grey (for inputs) */
+.form-group input::placeholder {
+  color: #999;
+  font-weight: 400;
 }
 
-/* Desktop styles ( > 1024px ) - no placeholder text */
-@media (min-width: 1025px) {
-  .date-group input[type="date"]::before {
-    display: none;
-  }
-
-  .date-group input[type="date"] {
-    color: #111;
-  }
-
-  .date-placeholder {
-    display: none;
-  }
-}
-
-/* Mobile and Tablet styles ( <= 1024px ) - custom placeholder */
-@media (max-width: 1024px) {
-  .date-group {
-    position: relative;
-  }
-
-  .date-placeholder {
-    position: absolute;
-    left: 0;
-    top: 0.75rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #999;
-    pointer-events: none;
-    font-family: 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
-
-  /* Hide the native placeholder on mobile */
-  .date-group input[type="date"]::before {
-    display: none;
-  }
-
-  .date-group input[type="date"]:focus + .date-placeholder,
-  .date-group input[type="date"]:valid + .date-placeholder {
-    display: none;
-  }
-
-  .date-group input[type="date"]:valid {
-    color: #111;
-  }
-}
-
-/* Select dropdown styling */
+/* Make select dropdowns show grey placeholder text when no option selected */
 select {
   cursor: pointer;
   appearance: none;
@@ -615,10 +579,45 @@ select {
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
   color: #111;
+  font-weight: 400;
 }
 
+/* Grey text for disabled/selected placeholder option (affects the dropdown
+   popup list only — the closed select box weight is handled above via
+   .form-group select / .form-group select:valid) */
+select option[disabled][selected] {
+  color: #999;
+  font-weight: 400;
+}
+
+/* When a valid option is selected, show black */
+select:valid {
+  color: #111;
+}
+
+/* For the first option (placeholder) to show grey */
+select option:first-child {
+  color: #999;
+}
+
+/* Make select show grey when no valid option is selected */
+select:invalid {
+  color: #999;
+}
+
+select:valid {
+  color: #111;
+}
+
+/* Ensure option text is black when selected */
 select option {
   color: #111;
+}
+
+/* Keep the first/disabled option grey */
+select option[value=""],
+select option:disabled {
+  color: #999;
 }
 
 .note-text {
@@ -765,8 +764,6 @@ select option {
   border-color: #000;
 }
 
-
-/* Add these styles to your existing CSS */
 .agreement-text {
   margin-bottom: 1.5rem;
 }
@@ -788,15 +785,85 @@ select option {
   color: #000;
 }
 
-.checkbox-text {
-  font-size: 0.75rem;
-  color: #666;
-  letter-spacing: 0.3px;
+/* Date picker styling - consistent across all devices */
+.date-group {
+  position: relative;
+}
+
+.date-group input[type="date"] {
+  color-scheme: light;
+  width: 100%;
+  position: relative;
+  background: transparent;
+  padding: 0.75rem 0;
+}
+
+/* Custom placeholder - shows on ALL devices when no date selected */
+.date-placeholder {
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  font-size: 0.9rem;
   font-weight: 500;
+  color: #999;
+  pointer-events: none;
+  font-family: 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  transition: opacity 0.2s ease;
+}
+
+/* Hide placeholder when input is focused or has a value */
+.date-group input[type="date"]:focus ~ .date-placeholder,
+.date-group input[type="date"]:valid ~ .date-placeholder {
+  opacity: 0;
+}
+
+/* Hide the native placeholder text on ALL devices */
+.date-group input[type="date"]::before {
+  display: none;
+}
+
+/* The native date text is never shown directly — it's unreliable to
+   suppress consistently across browsers (e.g. Chrome's per-segment
+   highlight colors). Instead keep it transparent and only reveal it
+   momentarily while the user is actively editing/typing a date. */
+.date-group input[type="date"] {
+  color: transparent;
+}
+
+.date-group input[type="date"]:focus {
+  color: #111;
+}
+
+.date-group input[type="date"]::-webkit-datetime-edit-text,
+.date-group input[type="date"]::-webkit-datetime-edit-month-field,
+.date-group input[type="date"]::-webkit-datetime-edit-day-field,
+.date-group input[type="date"]::-webkit-datetime-edit-year-field {
+  color: inherit;
+}
+
+/* Our own rendered date text, shown once a value is chosen and the
+   field isn't focused */
+.date-display {
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #111;
+  pointer-events: none;
+  font-family: 'Helvetica Now', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.date-group input[type="date"]:focus ~ .date-display {
+  opacity: 0;
+}
+
+.date-group input[type="date"]:focus {
+  border-bottom-color: #000;
 }
 
 /* Responsive */
-@media (max-width: 800px) {
+@media (max-width: 800px){
   .two-column-layout {
     grid-template-columns: 1fr;
     gap: 2rem;

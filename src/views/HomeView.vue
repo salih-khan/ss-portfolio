@@ -35,26 +35,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import PhotoGrid from '@/components/PhotoGrid.vue'
 import { useFirebasePhotos } from '@/composables/useFirebasePhotos'
 
-const { getHomepagePhotos, loading: composableLoading, error } = useFirebasePhotos()
+const { getHomepagePhotos, error } = useFirebasePhotos()
 const photos = ref([])
 const isLoading = ref(true)
-
-// Watch the composable loading state
-watch(composableLoading, (newLoading) => {
-  if (!newLoading && photos.value.length > 0) {
-    isLoading.value = false
-  }
-})
 
 onMounted(async () => {
   isLoading.value = true
 
   try {
-    // Get 10 photos from homepage source (Highlights > Weddings)
+    // Get 10 photos from homepage source (Home > Weddings fallback)
     const fetchedPhotos = await getHomepagePhotos(10)
 
     console.log('Fetched photos:', fetchedPhotos.length)
@@ -65,13 +58,9 @@ onMounted(async () => {
       caption: photo.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
       loaded: false,
     }))
-
-    // If composable loading is already false, turn off our loading
-    if (!composableLoading.value) {
-      isLoading.value = false
-    }
   } catch (err) {
     console.error('Error:', err)
+  } finally {
     isLoading.value = false
   }
 })

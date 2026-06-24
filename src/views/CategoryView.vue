@@ -11,12 +11,17 @@
       <span class="current">{{ category?.displayName || '' }}</span>
     </div>
 
+    <!-- Show placeholder if available AND no collections -->
+    <div v-if="!loading && collections.length === 0 && category?.placeholder" class="placeholder-text">
+      {{ category.placeholder }}
+    </div>
+
     <div v-if="loading" class="loading-container">
       <div class="loader"></div>
       <p>Loading collections...</p>
     </div>
 
-    <div v-else-if="collections.length === 0" class="empty-state">
+    <div v-else-if="collections.length === 0 && !category?.placeholder" class="empty-state">
       <p>No collections found in this category.</p>
     </div>
 
@@ -40,16 +45,21 @@ import { useRoute } from 'vue-router'
 import { useArchiveNavigation } from '@/composables/useArchiveNavigation'
 
 const route = useRoute()
-const { getCollections, getCategory, loading } = useArchiveNavigation()
+const { getCollections, getCategory } = useArchiveNavigation()
 
 const categoryId = ref('')
 const category = ref(null)
 const collections = ref([])
+const loading = ref(false)
 
 onMounted(async () => {
+  loading.value = true
+
   categoryId.value = route.params.categoryId
   category.value = await getCategory(categoryId.value)
   collections.value = await getCollections(categoryId.value)
+
+  loading.value = false
 })
 </script>
 
@@ -90,7 +100,7 @@ onMounted(async () => {
 
 .breadcrumb {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2rem;
   font-size: 0.8rem;
   color: #aaa;
   letter-spacing: 1px;
@@ -112,6 +122,16 @@ onMounted(async () => {
 
 .breadcrumb span {
   margin: 0 0.4rem;
+}
+
+.placeholder-text {
+  text-align: center;
+  font-size: 1rem;
+  color: #888;
+  margin: 3rem auto;
+  max-width: 600px;
+  font-style: normal;
+  line-height: 1.6;
 }
 
 .collections-grid {
@@ -192,7 +212,7 @@ onMounted(async () => {
   }
   .breadcrumb {
     font-size: 0.7rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
   }
   .collection-link {
     font-size: 0.9rem;

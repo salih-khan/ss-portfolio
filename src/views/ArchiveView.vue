@@ -56,10 +56,16 @@ onMounted(async () => {
 .archive-header {
   text-align: center;
   margin-bottom: 3rem;
-  padding-bottom: 2rem;
+  padding-bottom: 3rem;
+  padding-top: 1rem;
   border-bottom: 1px solid #f0f0f0;
 }
-
+@media (max-width: 768px) {
+  .archive-header {
+    padding-top: 0rem;
+    padding-bottom: 3rem;
+  }
+}
 .archive-title {
   font-family: 'Helvetica Now', sans-serif;
   font-size: 2rem;
@@ -71,14 +77,12 @@ onMounted(async () => {
 }
 
 .archive-description {
-  font-family: 'Helvetica Now', sans-serif;
-  color: #777;
+max-width: 720px;
   margin: 0 auto;
-  font-size: 0.85rem;
-  line-height: 1.6;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #2c2c2c;
   font-weight: 400;
-  max-width: 600px;
-  letter-spacing: 0.3px;
 }
 
 .categories-grid {
@@ -91,7 +95,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  width: auto;
+  width: auto !important;
   min-width: 300px;
 }
 
@@ -189,12 +193,15 @@ onMounted(async () => {
     font-size: 1.5rem;
   }
   .archive-description {
-    font-size: 0.8rem;
     max-width: 100%;
   }
   .categories-wrapper {
     min-width: 200px;
-    width: 100%;
+    width: auto;
+    align-items: center;
+  }
+  .category-link {
+    margin: 0 auto;
   }
   .category-link {
     font-size: 2.5rem;
@@ -202,7 +209,7 @@ onMounted(async () => {
     padding: 0.2rem 1rem;
   }
   .category-name {
-    font-size: 2.5rem;
+    font-size: 3rem;
   }
   .category-number {
     font-size: 0.9rem;
@@ -217,7 +224,7 @@ onMounted(async () => {
     gap: 0.75rem;
   }
   .category-name {
-    font-size: 1.8rem;
+    font-size: 3rem;
   }
   .category-number {
     font-size: 0.75rem;

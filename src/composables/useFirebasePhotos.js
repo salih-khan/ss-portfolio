@@ -78,23 +78,35 @@ export function useFirebasePhotos() {
     }
   }
 
-  // Get homepage highlights
+  // Get homepage highlights (Home folder, falls back to Weddings if Home is empty)
   const getHomepagePhotos = async (limit = 10) => {
     loading.value = true
     error.value = null
 
     try {
-      const homeExist = await folderExists('Home')
+      let sortedItems = await getAllItemsFromFolder('Home')
       let folderToUse = 'Home'
 
-      if (homeExist) {
-        console.log('Using Home folder')
-        folderToUse = 'Home'
-      } else {
-        console.log('Home folder not found, using Weddings folder')
+      if (sortedItems.length === 0) {
+        console.log('Home folder empty, using Weddings folder')
+        folderToUse = 'Weddings'
+        sortedItems = await getAllItemsFromFolder('Weddings')
       }
 
-      const { images } = await getPhotosFromFolder(folderToUse, limit, 0)
+      const paginatedItems = sortedItems.slice(0, limit)
+
+      const imagePromises = paginatedItems.map(async (itemRef) => {
+        const url = await getDownloadURL(itemRef)
+        return {
+          url: url,
+          name: itemRef.name,
+          path: itemRef.fullPath,
+          folder: folderToUse,
+        }
+      })
+
+      const images = await Promise.all(imagePromises)
+
       photos.value = images
       return images
     } catch (err) {

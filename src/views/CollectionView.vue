@@ -17,12 +17,17 @@
       <h2 class="collection-title">{{ collection?.displayName || '' }}</h2>
     </div>
 
+    <!-- Show placeholder if available AND no photos -->
+    <div v-if="!loading && photos.length === 0 && collection?.placeholder" class="placeholder-text">
+      {{ collection.placeholder }}
+    </div>
+
     <div v-if="loading" class="loading-container">
       <div class="loader"></div>
       <p>Loading photos...</p>
     </div>
 
-    <div v-else-if="photos.length === 0" class="empty-state">
+    <div v-else-if="photos.length === 0 && !collection?.placeholder" class="empty-state">
       <p>No photos found in this collection.</p>
     </div>
 
@@ -169,7 +174,7 @@ onMounted(async () => {
 
 .collection-header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2rem;
 }
 
 .collection-title {
@@ -180,6 +185,16 @@ onMounted(async () => {
   color: #333;
   margin-bottom: 0;
   text-transform: uppercase;
+}
+
+.placeholder-text {
+  text-align: center;
+  font-size: 1rem;
+  color: #888;
+  margin: 3rem auto;
+  max-width: 600px;
+  font-style:normal;
+  line-height: 1.6;
 }
 
 .photos-container {

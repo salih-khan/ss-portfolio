@@ -1,10 +1,6 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
-import HomeView from './views/HomeView.vue'
-import EnquiryView from './views/EnquiryView.vue'
-import ArchiveView from './views/ArchiveView.vue'
-import EchoView from './views/EchoView.vue'
 
 // Import global styles
 import './assets/global.css'
@@ -15,22 +11,22 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: () => import('@/views/HomeView.vue')
     },
     {
       path: '/enquiry',
       name: 'enquiry',
-      component: EnquiryView,
+      component: () => import('@/views/EnquiryView.vue')
     },
     {
       path: '/archive',
       name: 'archive',
-      component: ArchiveView,
+      component: () => import('@/views/ArchiveView.vue')
     },
     {
       path: '/echo',
       name: 'echo',
-      component: EchoView,
+      component: () => import('@/views/EchoView.vue')
     },
     {
       path: '/archive/:categoryId',

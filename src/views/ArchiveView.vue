@@ -12,7 +12,8 @@
     </div>
 
     <div v-else-if="error" class="error-container">
-      <p>Error loading archive: {{ error.message }}</p>
+      <p>{{ error }}</p>
+      <button @click="loadCategories" class="retry-btn">Retry</button>
     </div>
 
     <div v-else class="categories-grid">
@@ -38,10 +39,11 @@ import { useArchiveNavigation } from '@/composables/useArchiveNavigation'
 const { getCategories, loading, error } = useArchiveNavigation()
 const categories = ref([])
 
-onMounted(async () => {
+const loadCategories = async () => {
   categories.value = await getCategories()
-  console.log('📊 Categories loaded:', categories.value)
-})
+}
+
+onMounted(loadCategories)
 </script>
 
 <style scoped>
@@ -169,6 +171,26 @@ max-width: 720px;
   text-align: center;
   padding: 4rem;
   color: #ff4444;
+}
+
+.retry-btn {
+  margin-top: 1rem;
+  background: none;
+  border: 1px solid #eaeaea;
+  padding: 0.75rem 2rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+  font-family: 'Helvetica Now', sans-serif;
+}
+
+.retry-btn:hover {
+  background: #000;
+  color: #fff;
+  border-color: #000;
 }
 
 @media (max-width: 1024px) {

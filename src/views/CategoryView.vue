@@ -21,6 +21,11 @@
       <p>Loading collections...</p>
     </div>
 
+    <div v-else-if="error" class="error-container">
+      <p>{{ error }}</p>
+      <button @click="loadData" class="retry-btn">Retry</button>
+    </div>
+
     <div v-else-if="collections.length === 0 && !category?.placeholder" class="empty-state">
       <p>No collections found in this category.</p>
     </div>
@@ -45,22 +50,26 @@ import { useRoute } from 'vue-router'
 import { useArchiveNavigation } from '@/composables/useArchiveNavigation'
 
 const route = useRoute()
-const { getCollections, getCategory } = useArchiveNavigation()
+const { getCollections, getCategory, error } = useArchiveNavigation()
 
 const categoryId = ref('')
 const category = ref(null)
 const collections = ref([])
 const loading = ref(false)
 
-onMounted(async () => {
+const loadData = async () => {
   loading.value = true
 
   categoryId.value = route.params.categoryId
-  category.value = await getCategory(categoryId.value)
-  collections.value = await getCollections(categoryId.value)
+  ;[category.value, collections.value] = await Promise.all([
+    getCategory(categoryId.value),
+    getCollections(categoryId.value),
+  ])
 
   loading.value = false
-})
+}
+
+onMounted(loadData)
 </script>
 
 <style scoped>
@@ -198,6 +207,32 @@ onMounted(async () => {
   padding: 4rem;
   color: #999;
   font-family: 'Helvetica Now', sans-serif;
+}
+
+.error-container {
+  text-align: center;
+  padding: 4rem;
+  color: #ff4444;
+}
+
+.retry-btn {
+  margin-top: 1rem;
+  background: none;
+  border: 1px solid #eaeaea;
+  padding: 0.75rem 2rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+  font-family: 'Helvetica Now', sans-serif;
+}
+
+.retry-btn:hover {
+  background: #000;
+  color: #fff;
+  border-color: #000;
 }
 
 @media (max-width: 768px) {

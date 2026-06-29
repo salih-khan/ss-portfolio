@@ -17,14 +17,19 @@
       <h2 class="collection-title">{{ collection?.displayName || '' }}</h2>
     </div>
 
-    <!-- Show placeholder if available AND no photos -->
-    <div v-if="!loading && photos.length === 0 && collection?.placeholder" class="placeholder-text">
+    <!-- Show placeholder if available AND no photos and no error -->
+    <div v-if="!loading && !fetchError && photos.length === 0 && collection?.placeholder" class="placeholder-text">
       {{ collection.placeholder }}
     </div>
 
     <div v-if="loading" class="loading-container">
       <div class="loader"></div>
       <p>Loading photos...</p>
+    </div>
+
+    <div v-else-if="fetchError" class="error-container">
+      <p>{{ fetchError }}</p>
+      <button @click="retryLoad" class="retry-btn">Retry</button>
     </div>
 
     <div v-else-if="photos.length === 0 && !collection?.placeholder" class="empty-state">
@@ -47,15 +52,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import MasonryGrid from '@/components/MasonryGrid.vue'
 import { useFirebasePhotos } from '@/composables/useFirebasePhotos'
 import { useArchiveNavigation } from '@/composables/useArchiveNavigation'
 
 const route = useRoute()
-const { getPhotosFromFolder } = useFirebasePhotos()
-const { getCollection, getCategory } = useArchiveNavigation()
+const { getPhotosFromFolder, error: photoError } = useFirebasePhotos()
+const { getCollection, getCategory, error: navError } = useArchiveNavigation()
 
 const collectionId = ref('')
 const categoryId = ref('')
@@ -67,6 +72,8 @@ const hasMore = ref(false)
 const nextOffset = ref(0)
 const loading = ref(false)
 const loadingMore = ref(false)
+
+const fetchError = computed(() => navError.value || photoError.value)
 
 const loadPhotos = async (offset = 0) => {
   const result = await getPhotosFromFolder(collectionPath.value, 20, offset)
@@ -88,23 +95,41 @@ const loadMore = async () => {
   loadingMore.value = false
 }
 
+const loadAfterCollection = async (col) => {
+  collectionPath.value = col.path
+  const parentId = col.parentId || null
+  categoryId.value = parentId || ''
+
+  await Promise.all([
+    parentId ? getCategory(parentId).then((cat) => { category.value = cat }) : Promise.resolve(),
+    loadPhotos(),
+  ])
+}
+
+const retryLoad = async () => {
+  loading.value = true
+  navError.value = null
+  photoError.value = null
+  photos.value = []
+
+  collectionId.value = route.params.collectionId
+  collection.value = await getCollection(collectionId.value)
+
+  if (collection.value) {
+    await loadAfterCollection(collection.value)
+  }
+
+  loading.value = false
+}
+
 onMounted(async () => {
   loading.value = true
 
   collectionId.value = route.params.collectionId
-
-  // Fetch collection data from Firestore
   collection.value = await getCollection(collectionId.value)
 
   if (collection.value) {
-    // Get parent category for breadcrumb
-    if (collection.value.parentId) {
-      categoryId.value = collection.value.parentId
-      category.value = await getCategory(categoryId.value)
-    }
-
-    collectionPath.value = collection.value.path
-    await loadPhotos()
+    await loadAfterCollection(collection.value)
   }
 
   loading.value = false
@@ -275,6 +300,32 @@ onMounted(async () => {
   padding: 4rem;
   color: #999;
   font-family: 'Helvetica Now', sans-serif;
+}
+
+.error-container {
+  text-align: center;
+  padding: 4rem;
+  color: #ff4444;
+}
+
+.retry-btn {
+  margin-top: 1rem;
+  background: none;
+  border: 1px solid #eaeaea;
+  padding: 0.875rem 2.5rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+  font-family: 'Helvetica Now', sans-serif;
+}
+
+.retry-btn:hover {
+  background: #000;
+  color: #fff;
+  border-color: #000;
 }
 
 @media (max-width: 768px) {

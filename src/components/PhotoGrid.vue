@@ -3,7 +3,7 @@
     <div class="photo-grid">
       <div v-for="(photo, index) in photosWithLocalState" :key="photo.src" class="grid-item">
         <div class="image-wrapper">
-          <img :src="photo.src" :alt="photo.alt" @load="() => (imageLoaded[index] = true)" />
+          <img :src="photo.src" :alt="photo.alt" loading="lazy" @load="() => (imageLoaded[index] = true)" />
           <div v-if="!imageLoaded[index]" class="loading-shimmer"></div>
         </div>
         <div class="photo-caption" v-if="photo.caption">
@@ -60,6 +60,7 @@ watch(
   background: #f5f5f5;
   overflow: hidden;
   border-radius: 2px;
+  min-height: 250px;
 }
 
 .image-wrapper img {

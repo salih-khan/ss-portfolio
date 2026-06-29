@@ -50,8 +50,6 @@ onMounted(async () => {
     // Get 10 photos from homepage source (Home > Weddings fallback)
     const fetchedPhotos = await getHomepagePhotos(10)
 
-    console.log('Fetched photos:', fetchedPhotos.length)
-
     photos.value = fetchedPhotos.map((photo) => ({
       src: photo.url,
       alt: photo.name.replace(/\.[^/.]+$/, ''), // Remove file extension for alt text

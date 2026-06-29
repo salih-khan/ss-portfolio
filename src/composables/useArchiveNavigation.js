@@ -11,6 +11,32 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 
+const TIMEOUT_MS = 10000
+const CACHE_TTL = 300000 // 5 minutes
+
+const withTimeout = (promise, ms = TIMEOUT_MS) =>
+  Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timed out')), ms)
+    ),
+  ])
+
+// Module-level cache — persists across all useArchiveNavigation() instances
+// within the same browser session (module is loaded once per page load).
+const cache = new Map()
+
+const getCached = (key) => {
+  const entry = cache.get(key)
+  if (!entry) return null
+  if (Date.now() - entry.timestamp > CACHE_TTL) return null
+  return entry.value
+}
+
+const setCached = (key, value) => {
+  cache.set(key, { value, timestamp: Date.now() })
+}
+
 export function useArchiveNavigation() {
   const loading = ref(false)
   const error = ref(null)
@@ -73,22 +99,16 @@ export function useArchiveNavigation() {
     error.value = null
 
     try {
+      const cached = getCached('categories')
+      if (cached) return cached
+
       const categoriesRef = collection(db, 'categories')
-      const snapshot = await getDocs(categoriesRef)
-      console.log(`📊 Total documents in categories: ${snapshot.docs.length}`)
+      const snapshot = await withTimeout(getDocs(categoriesRef))
 
       const categories = []
       for (const doc of snapshot.docs) {
         const data = doc.data()
         const normalized = normalizeDocument(data)
-
-        console.log(`📄 Document: ${doc.id}`, {
-          displayName: normalized.displayName,
-          parentId: normalized.parentId,
-          enabled: normalized.enabled,
-          order: normalized.order,
-          placeholder: normalized.placeholder
-        })
 
         // Check if it's a category (parentId is empty) and enabled
         if (normalized.parentId === '' && normalized.enabled === true) {
@@ -101,12 +121,11 @@ export function useArchiveNavigation() {
 
       // Sort by order
       categories.sort((a, b) => (a.order || 999) - (b.order || 999))
-
-      console.log(`✅ Found ${categories.length} categories`)
+      setCached('categories', categories)
       return categories
     } catch (err) {
       console.error('Error fetching categories:', err)
-      error.value = err
+      error.value = err.message || 'Failed to load categories.'
       return []
     } finally {
       loading.value = false
@@ -117,10 +136,17 @@ export function useArchiveNavigation() {
    * Get collections for a specific category (by parentId)
    */
   const getCollections = async (categoryId) => {
+    const cacheKey = `collections:${categoryId}`
     try {
+      const cached = getCached(cacheKey)
+      if (cached) {
+        error.value = null
+        return cached
+      }
+
       const collectionsRef = collection(db, 'categories')
       const q = query(collectionsRef, where('Parent-Id', '==', categoryId))
-      const snapshot = await getDocs(q)
+      const snapshot = await withTimeout(getDocs(q))
 
       const collections = []
       for (const doc of snapshot.docs) {
@@ -137,9 +163,11 @@ export function useArchiveNavigation() {
 
       collections.sort((a, b) => (a.order || 999) - (b.order || 999))
 
+      setCached(cacheKey, collections)
       return collections
     } catch (err) {
       console.error(`Error fetching collections for ${categoryId}:`, err)
+      error.value = err.message || 'Failed to load collections.'
       return []
     }
   }
@@ -148,19 +176,29 @@ export function useArchiveNavigation() {
    * Get a single category by ID
    */
   const getCategory = async (categoryId) => {
+    const cacheKey = `category:${categoryId}`
     try {
+      const cached = getCached(cacheKey)
+      if (cached) {
+        error.value = null
+        return cached
+      }
+
       const docRef = doc(db, 'categories', categoryId)
-      const docSnap = await getDoc(docRef)
+      const docSnap = await withTimeout(getDoc(docRef))
 
       if (docSnap.exists()) {
-        return {
+        const result = {
           id: docSnap.id,
           ...normalizeDocument(docSnap.data())
         }
+        setCached(cacheKey, result)
+        return result
       }
       return null
     } catch (err) {
       console.error('Error fetching category:', err)
+      error.value = err.message || 'Failed to load category.'
       return null
     }
   }
@@ -169,19 +207,29 @@ export function useArchiveNavigation() {
    * Get a single collection by ID
    */
   const getCollection = async (collectionId) => {
+    const cacheKey = `collection:${collectionId}`
     try {
+      const cached = getCached(cacheKey)
+      if (cached) {
+        error.value = null
+        return cached
+      }
+
       const docRef = doc(db, 'categories', collectionId)
-      const docSnap = await getDoc(docRef)
+      const docSnap = await withTimeout(getDoc(docRef))
 
       if (docSnap.exists()) {
-        return {
+        const result = {
           id: docSnap.id,
           ...normalizeDocument(docSnap.data())
         }
+        setCached(cacheKey, result)
+        return result
       }
       return null
     } catch (err) {
       console.error('Error fetching collection:', err)
+      error.value = err.message || 'Failed to load collection.'
       return null
     }
   }
